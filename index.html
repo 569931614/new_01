@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOA行驶事故时间线分析</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0070f3',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .timeline-item {
+            transition: all 0.3s ease;
+        }
+        .timeline-item:hover {
+            transform: translateX(10px);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+        .car-diagram {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .screenshot-btn {
+            position: fixed;
+            bottom: 4rem;
+            right: 4rem;
+            z-index: 50;
+            transition: all 0.3s ease;
+        }
+        
+        .screenshot-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .screenshot-toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .screenshot-toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- 头部 -->
+        <header class="text-center mb-12 fade-in">
+            <div class="flex justify-center mb-4">
+                <i class="fas fa-car-crash text-5xl text-red-500 dark:text-red-400"></i>
+            </div>
+            <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">NOA行驶事故时间线分析</h1>
+            <p class="text-gray-600 dark:text-gray-400">详细还原事故发生过程及救援响应</p>
+        </header>
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg mb-8 fade-in">
+            <div class="flex items-center mb-4">
+                
+                <div>
+                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">小米公司发言人</h2>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">小米科技有限责任公司</p>
+                </div>
+            </div>
+            <p class="text-gray-700 dark:text-gray-300">2025年3月29日22时44分，一辆小米SU7标准版在德上高速公路池邢段行驶过程中遭遇严重交通事故。我们对此深感痛惜。</p>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg mb-8 fade-in">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+                <i class="fas fa-info-circle text-blue-500 mr-2"></i>事故详细描述
+            </h3>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+                据初步了解，事故发生前车辆处于NOA智能辅助驾驶状态，以116km/h的速度持续行驶。事发路段因施工修缮，用路障封闭自车道、改道至逆向车道。车辆检测出障碍物后发出提醒并开始减速，随后驾驶员接管车辆进入人驾状态，持续减速并操控车辆转向，随后车辆与隔离带水泥桩发生碰撞，碰撞前系统最后记录的时速为97km/h。
+            </p>
+            
+            <!-- 添加事故示意图 -->
+            <div class="mt-6 bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
+                <div class="flex items-center justify-center">
+                    <div class="text-center">
+                        <div class="inline-block p-4 bg-blue-100 dark:bg-blue-900 rounded-lg mb-2">
+                            <i class="fas fa-car text-4xl text-blue-500"></i>
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">NOA行驶 (116km/h)</p>
+                    </div>
+                    <i class="fas fa-long-arrow-alt-right mx-4 text-gray-500"></i>
+                    <div class="text-center">
+                        <div class="inline-block p-4 bg-yellow-100 dark:bg-yellow-900 rounded-lg mb-2">
+                            <i class="fas fa-exclamation-triangle text-4xl text-yellow-500"></i>
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">障碍物警告</p>
+                    </div>
+                    <i class="fas fa-long-arrow-alt-right mx-4 text-gray-500"></i>
+                    <div class="text-center">
+                        <div class="inline-block p-4 bg-purple-100 dark:bg-purple-900 rounded-lg mb-2">
+                            <i class="fas fa-hands text-4xl text-purple-500"></i>
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">驾驶员接管</p>
+                    </div>
+                    <i class="fas fa-long-arrow-alt-right mx-4 text-gray-500"></i>
+                    <div class="text-center">
+                        <div class="inline-block p-4 bg-red-100 dark:bg-red-900 rounded-lg mb-2">
+                            <i class="fas fa-car-crash text-4xl text-red-500"></i>
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">碰撞 (97km/h)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 时间线 -->
+        <div class="relative">
+            <!-- 垂直线 -->
+            <div class="absolute left-8 top-0 bottom-0 w-0.5 bg-gray-200 dark:bg-gray-700"></div>
+
+            <!-- 时间线项目 -->
+            <div class="space-y-8">
+                <!-- 行驶阶段 -->
+                <div class="timeline-item relative pl-24 pb-8 fade-in">
+                    <div class="absolute left-6 w-4 h-4 bg-blue-500 rounded-full border-4 border-white dark:border-gray-900"></div>
+                    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow">
+                        <h3 class="text-xl font-bold text-blue-500 mb-2 flex items-center">
+                            <i class="fas fa-car-side mr-2"></i>行驶阶段
+                        </h3>
+                        <div class="space-y-3">
+                            <p class="flex items-center">
+                                <span class="text-gray-500 w-20">22:27:17</span>
+                                <i class="fas fa-play-circle text-green-500 mr-2"></i>
+                                <span class="text-gray-700 dark:text-gray-300">NOA激活，车速116km/h</span>
+                            </p>
+                            <p class="flex items-center">
+                                <span class="text-gray-500 w-20">22:28:17</span>
+                                <i class="fas fa-eye-slash text-yellow-500 mr-2"></i>
+                                <span class="text-gray-700 dark:text-gray-300">轻度分心报警</span>
+                            </p>
+                            <p class="flex items-center">
+                                <span class="text-gray-500 w-20">22:36:48</span>
+                                <i class="fas fa-hand-paper text-orange-500 mr-2"></i>
+                                <span class="text-gray-700 dark:text-gray-300">NOA脱手预提示"请手握方向盘"</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 危险阶段 -->
+                <div class="timeline-item relative pl-24 pb-8 fade-in">
+                    <div class="absolute left-6 w-4 h-4 bg-red-500 rounded-full border-4 border-white dark:border-gray-900"></div>
+                    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow">
+                        <h3 class="text-xl font-bold text-red-500 mb-2 flex items-center">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>危险阶段
+                        </h3>
+                        <div class="space-y-3">
+                            <p class="flex items-center">
+                                <span class="text-gray-500 w-20">22:44:24</span>
+                                <i class="fas fa-bell text-red-500 mr-2"></i>
+                                <span class="text-gray-700 dark:text-gray-300">NOA风险提示"请注意前方有障碍"，系统减速</span>
+                            </p>
+                            <p class="flex items-center">
+                                <span class="text-gray-500 w-20">22:44:25</span>
+                                <i class="fas fa-hands text-purple-500 mr-2"></i>
+                                <span class="text-gray-700 dark:text-gray-300">NOA被接管，方向盘左转22.0625度，制动踏板开度31%</span>
+                            </p>
+                            <p class="flex items-center">
+                                <span class="text-gray-500 w-20">22:44:26</span>
+                                <i class="fas fa-tachometer-alt text-blue-500 mr-2"></i>
+                                <span class="text-gray-700 dark:text-gray-300">方向盘右转1.0625度，制动踏板开度38%</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 事故及救援 -->
+                <div class="timeline-item relative pl-24 fade-in">
+                    <div class="absolute left-6 w-4 h-4 bg-yellow-500 rounded-full border-4 border-white dark:border-gray-900"></div>
+                    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow">
+                        <h3 class="text-xl font-bold text-yellow-500 mb-2 flex items-center">
+                            <i class="fas fa-ambulance mr-2"></i>事故及救援
+                        </h3>
+                        <div class="space-y-3">
+                            <p class="flex items-center">
+                                <span class="text-gray-500 w-20">22:44:26-28</span>
+                                <i class="fas fa-car-crash text-red-500 mr-2"></i>
+                                <span class="text-gray-700 dark:text-gray-300">车辆与水泥护栏碰撞</span>
+                            </p>
+                            <p class="flex items-center">
+                                <span class="text-gray-500 w-20">22:44:28</span>
+                                <i class="fas fa-phone-alt text-green-500 mr-2"></i>
+                                <span class="text-gray-700 dark:text-gray-300">车端Ecall触发</span>
+                            </p>
+                            <p class="flex items-center">
+                                <span class="text-gray-500 w-20">22:44:39</span>
+                                <i class="fas fa-headset text-blue-500 mr-2"></i>
+                                <span class="text-gray-700 dark:text-gray-300">Ecall接通，确认事故并呼叫120</span>
+                            </p>
+                            <p class="flex items-center">
+                                <span class="text-gray-500 w-20">22:45:06</span>
+                                <i class="fas fa-user-check text-purple-500 mr-2"></i>
+                                <span class="text-gray-700 dark:text-gray-300">与车主联系，确认非车主驾驶</span>
+                            </p>
+                            <p class="flex items-center">
+                                <span class="text-gray-500 w-20">22:47:15</span>
+                                <i class="fas fa-ambulance text-red-500 mr-2"></i>
+                                <span class="text-gray-700 dark:text-gray-300">调配120成功</span>
+                            </p>
+                            <p class="flex items-center">
+                                <span class="text-gray-500 w-20">23:00左右</span>
+                                <i class="fas fa-hospital text-green-500 mr-2"></i>
+                                <span class="text-gray-700 dark:text-gray-300">120抵达现场</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 关键分析 -->
+        <div class="mt-12 bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg fade-in">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+                <i class="fas fa-search-plus text-blue-500 mr-2"></i>关键事件分析
+            </h2>
+            <ul class="list-none space-y-3 text-gray-700 dark:text-gray-300">
+                <li class="flex items-start">
+                    <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                    <span>NOA系统在高速行驶状态下（116km/h）被激活</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                    <span>系统先后发出分心报警和脱手预警</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-exclamation-circle text-red-500 mt-1 mr-2"></i>
+                    <span>从系统发出障碍警告到发生碰撞仅约4秒</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                    <span>驾驶员接管后进行了急转向和制动操作</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                    <span>事故发生后应急系统快速响应，约15分钟内救援到达</span>
+                </li>
+            </ul>
+            
+            <!-- 添加速度变化图表 -->
+            <div class="mt-6 p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3">车速变化趋势</h3>
+                <div class="h-40 flex items-end justify-between space-x-1">
+                    <div class="relative h-full flex-1 flex flex-col justify-end items-center">
+                        <div class="bg-blue-500 w-full" style="height: 85%;"></div>
+                        <span class="text-xs mt-1 text-gray-600 dark:text-gray-400">22:44:24</span>
+                        <span class="absolute -top-5 text-xs text-gray-600 dark:text-gray-400">116km/h</span>
+                    </div>
+                    <div class="relative h-full flex-1 flex flex-col justify-end items-center">
+                        <div class="bg-blue-400 w-full" style="height: 80%;"></div>
+                        <span class="text-xs mt-1 text-gray-600 dark:text-gray-400">22:44:25</span>
+                        <span class="absolute -top-5 text-xs text-gray-600 dark:text-gray-400">110km/h</span>
+                    </div>
+                    <div class="relative h-full flex-1 flex flex-col justify-end items-center">
+                        <div class="bg-blue-300 w-full" style="height: 75%;"></div>
+                        <span class="text-xs mt-1 text-gray-600 dark:text-gray-400">22:44:26</span>
+                        <span class="absolute -top-5 text-xs text-gray-600 dark:text-gray-400">103km/h</span>
+                    </div>
+                    <div class="relative h-full flex-1 flex flex-col justify-end items-center">
+                        <div class="bg-yellow-500 w-full" style="height: 70%;"></div>
+                        <span class="text-xs mt-1 text-gray-600 dark:text-gray-400">22:44:27</span>
+                        <span class="absolute -top-5 text-xs text-gray-600 dark:text-gray-400">97km/h</span>
+                    </div>
+                    <div class="relative h-full flex-1 flex flex-col justify-end items-center">
+                        <div class="bg-red-500 w-full" style="height: 0%;"></div>
+                        <span class="text-xs mt-1 text-gray-600 dark:text-gray-400">22:44:28</span>
+                        <span class="absolute -top-5 text-xs text-gray-600 dark:text-gray-400">碰撞</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-8 bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg fade-in">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+                <i class="fas fa-gavel text-blue-500 mr-2"></i>官方调查进展
+            </h2>
+            <div class="space-y-3 text-gray-700 dark:text-gray-300">
+                <p class="flex items-start">
+                    <i class="fas fa-clipboard-check text-green-500 mt-1 mr-2"></i>
+                    <span>警方勘验现场后，全面介入调查事故。同时，我们第一时间成立了专项小组，于30日赴现场，在警方的指导下，积极配合调查、取证等各项工作。</span>
+                </p>
+                <p class="flex items-start">
+                    <i class="fas fa-database text-blue-500 mt-1 mr-2"></i>
+                    <span>并于31日晚依法向警方提交完成初所有掌握的车辆行驶数据及系统运行信息。我们将继续全力配合警方工作，并严格遵循调查结果，确保妥处理公开透明。</span>
+                </p>
+                <p class="flex items-start">
+                    <i class="fas fa-hands-helping text-purple-500 mt-1 mr-2"></i>
+                    <span>同时，我们的专项组也将在警方的许可与指导下，与事故受难者家属取得联系，全力协助善后事宜，并提供支持与帮助。</span>
+                </p>
+            </div>
+        </div>
+        
+        <!-- 页脚 -->
+        <footer class="mt-12 text-center text-gray-600 dark:text-gray-400 fade-in">
+            <p>© 使用Claude 3.7生成</p>
+            <div class="mt-2 flex justify-center space-x-4">
+                <a href="https://twitter.com/username" class="text-blue-500 hover:text-blue-600 flex items-center">
+                    <i class="fab fa-twitter mr-1"></i> Twitter
+                </a>
+                <a href="#" class="text-blue-500 hover:text-blue-600 flex items-center">
+                    <i class="fab fa-weibo mr-1"></i> 微博
+                </a>
+                <a href="#" class="text-blue-500 hover:text-blue-600 flex items-center">
+                    <i class="fab fa-weixin mr-1"></i> 微信
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- 深色模式切换按钮 -->
+    <button id="theme-toggle" class="fixed bottom-4 right-4 p-3 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 shadow-lg">
+        <i class="fas fa-moon dark:hidden"></i>
+        <i class="fas fa-sun hidden dark:block"></i>
+    </button>
+    
+    <!-- 截图按钮 -->
+    <button id="screenshot-btn" class="screenshot-btn p-3 rounded-full bg-green-500 text-white shadow-lg">
+        <i class="fas fa-camera"></i>
+    </button>
+    
+    <!-- 截图提示 -->
+    <div id="screenshot-toast" class="screenshot-toast bg-black bg-opacity-70 text-white px-4 py-2 rounded-full">
+        <span id="toast-message">正在生成截图...</span>
+    </div>
+
+    <script>
+        // 深色模式切换
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            html.classList.add('dark');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+        });
+
+        // 滚动动画
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            observer.observe(el);
+        });
+        
+        // 截图功能
+        const screenshotBtn = document.getElementById('screenshot-btn');
+        const screenshotToast = document.getElementById('screenshot-toast');
+        const toastMessage = document.getElementById('toast-message');
+        
+        function showToast(message, duration = 3000) {
+            toastMessage.textContent = message;
+            screenshotToast.classList.add('show');
+            
+            setTimeout(() => {
+                screenshotToast.classList.remove('show');
+            }, duration);
+        }
+        
+        screenshotBtn.addEventListener('click', () => {
+            // 隐藏截图和主题按钮
+            screenshotBtn.style.display = 'none';
+            themeToggle.style.display = 'none';
+            
+            showToast('正在生成截图...');
+            
+            // 使用 html2canvas 生成截图
+            html2canvas(document.body, {
+                allowTaint: true,
+                useCORS: true,
+                scrollX: 0,
+                scrollY: 0,
+                windowWidth: document.documentElement.offsetWidth,
+                windowHeight: document.documentElement.offsetHeight,
+                scale: 1
+            }).then(canvas => {
+                // 恢复按钮显示
+                screenshotBtn.style.display = 'block';
+                themeToggle.style.display = 'block';
+                
+                // 将 canvas 转换为图片
+                const image = canvas.toDataURL('image/png');
+                
+                // 创建下载链接
+                const link = document.createElement('a');
+                link.download = '小米SU7事故分析报告_' + new Date().toISOString().slice(0, 10) + '.png';
+                link.href = image;
+                link.click();
+                
+                showToast('截图已保存');
+            }).catch(err => {
+                console.error('截图生成失败', err);
+                screenshotBtn.style.display = 'block';
+                themeToggle.style.display = 'block';
+                showToast('截图生成失败，请重试');
+            });
+        });
+    </script>
+</body>
+</html>
